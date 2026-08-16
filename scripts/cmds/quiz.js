@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const BASE_URL = 'https://dockerfile-fixer.onrender.com/api';
+const BASE_URL = 'https://quiz-api-eosin-xi.vercel.app/api';
 
 module.exports = {
   config: {
