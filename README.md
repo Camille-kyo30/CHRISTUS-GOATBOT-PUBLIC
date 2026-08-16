@@ -13,7 +13,7 @@
 
 Get your own copy and start customizing:
 
-[![FORK REPO](https://img.shields.io/badge/FORK%20REPO-Click%20Here-FF69B4?style=for-the-badge&logo=github)](https://github.com/3voldi/Flemme/fork)
+[![FORK REPO](https://img.shields.io/badge/FORK%20REPO-Click%20Here-FF69B4?style=for-the-badge&logo=github)](https://github.com/voldigo-anos/CHRISTUS-GOATBOT-PUBLIC/fork)
 
 ---
 
