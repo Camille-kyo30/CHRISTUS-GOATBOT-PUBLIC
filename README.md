@@ -48,7 +48,7 @@ Get your own copy and start customizing:
 <img src="https://i.imgur.com/0yH8Sij.jpeg" alt="banner">
 <h1 align="center"><img src="https://i.ibb.co/DHCFYwF6/f52d1a6e25af.jpg" width="50px"> Goat Bot - Bot Chat Messenger</h1>
 
-<img src="https://i.imgur.com/0yH8Sij.jpeg" alt=banner">
+<img src="https://i.ibb.co/DHCFYwF6/f52d1a6e25af.jpg" alt=banner">
 <h1 align="center"><img
 src="https://i.imgur.com/0yH8Sij.jpeg" width="50px"> compte du bot
 a voir sur facebook </h1> 
