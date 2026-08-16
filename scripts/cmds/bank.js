@@ -39,7 +39,7 @@ module.exports = {
   onStart: async function ({ message, args, event, usersData, threadsData, getLang, api }) {
     const { senderID, threadID } = event;
     const command = args[0]?.toLowerCase();
-    const API_BASE = 'https://secure-bank-api-e5lo.onrender.com';
+    const API_BASE = 'https://secure-bank-api.vercel.app/';
 
     const userData = await usersData.get(senderID);
     const walletBalance = userData.money || 0;
