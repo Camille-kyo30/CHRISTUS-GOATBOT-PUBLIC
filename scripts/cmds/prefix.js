@@ -1,47 +1,72 @@
 const fs = require("fs-extra");
 const path = require("path");
 
+const FRAME = "✦━━━━━━━━━━━━━━━━━━✦";
+const QUOTE = "« Pas de panique, je suis le plus fort. »";
+
+// Construit un message encadre style Gojo
+function box(lines, closing) {
+  return [
+    FRAME,
+    "🕶️ 𝗚𝗢𝗝𝗢 𝗦𝗔𝗧𝗢𝗥𝗨 🤍",
+    FRAME,
+    "",
+    ...lines,
+    "",
+    "🌌 " + QUOTE,
+    "",
+    FRAME,
+    closing || "✨ Expansion de Domaine : Préfixe ✨",
+    "➜ Éditeur : Camille Uchiha 🎀",
+    FRAME
+  ].join("\n");
+}
+
 module.exports = {
   config: {
     name: "prefix",
     aliases: [],
-    version: "1.4",
+    version: "1.5",
     author: "Christus",
+    editor: "Camille Uchiha",
     countDown: 10,
     role: 0,
     description: {
-      en: "Change the bot prefix in this chat or globally"
+      fr: "Change le préfixe du bot dans ce chat ou globalement"
     },
     category: "system",
     guide: {
-      en: "👋 Need help with prefixes? Here's what I can do:\n" +
-          "╰‣ Type: {pn} <newPrefix>\n" +
-          "   ↪ Set a new prefix for this chat only\n" +
-          "   ↪ Example: {pn} $\n" +
-          "╰‣ Type: {pn} <newPrefix> -g\n" +
-          "   ↪ Set a new global prefix (admin only)\n" +
-          "   ↪ Example: {pn} ! -g\n" +
-          "╰‣ Type: {pn} reset\n" +
-          "   ↪ Reset to default prefix from config\n" +
-          "╰‣ Type: {pn} refresh\n" +
-          "   ↪ Refresh prefix cache for this chat\n" +
-          "╰‣ Just type: prefix\n" +
-          "   ↪ Shows current prefix info\n" +
-          "🤖 I'm 🎀MINI BOT🎀🫴, ready to help!"
+      fr: "👋 Besoin d aide avec les préfixes ? Voici ce que je peux faire :\n" +
+          "╰‣ Tape : {pn} <nouveauPréfixe>\n" +
+          "   ↪ Définit un nouveau préfixe pour ce chat uniquement\n" +
+          "   ↪ Exemple : {pn} $\n" +
+          "╰‣ Tape : {pn} <nouveauPréfixe> -g\n" +
+          "   ↪ Définit un nouveau préfixe global (admin uniquement)\n" +
+          "   ↪ Exemple : {pn} ! -g\n" +
+          "╰‣ Tape : {pn} reset\n" +
+          "   ↪ Remet le préfixe par défaut de la config\n" +
+          "╰‣ Tape : {pn} refresh\n" +
+          "   ↪ Actualise le cache du préfixe pour ce chat\n" +
+          "╰‣ Tape simplement : prefix\n" +
+          "   ↪ Affiche les infos du préfixe actuel\n" +
+          "🤖 Je suis 🎀MINI BOT🎀🫴, prêt à aider !"
     }
   },
 
   onStart: async function ({ message, role, args, commandName, event, threadsData, usersData }) {
     const globalPrefix = global.GoatBot.config.prefix;
-    const userName = await usersData.getName(event.senderID) || "there";
+    const userName = await usersData.getName(event.senderID) || "toi";
 
     if (!args[0]) {
       const threadPrefix = await threadsData.get(event.threadID, "data.prefix") || globalPrefix;
       return message.reply({
-        body: `👋 Hey ${userName}, did you ask for my prefix?\n` +
-          `╭‣ 🌐 Global: ${globalPrefix}\n` +
-          `╰‣ 💬 This Chat: ${threadPrefix}\n` +
-          `🤖 I'm 🎀MINI BOT🎀🫴\n📂 try "${threadPrefix}help" to see all commands.`,
+        body: box([
+          `👋 Salut ${userName}, tu cherchais mon préfixe ?`,
+          `╭‣ 🌐 Global : ${globalPrefix}`,
+          `╰‣ 💬 Ce chat : ${threadPrefix}`,
+          "🤖 Je suis 🎀MINI BOT🎀🫴",
+          `📂 Essaie "${threadPrefix}help" pour voir toutes les commandes.`
+        ]),
         mentions: [{ id: event.senderID, tag: userName }]
       });
     }
@@ -49,10 +74,13 @@ module.exports = {
     if (args[0] === "reset") {
       await threadsData.set(event.threadID, null, "data.prefix");
       return message.reply({
-        body: `✅ Hey ${userName}, chat prefix has been reset!\n` +
-          `╭‣ 🌐 Global: ${globalPrefix}\n` +
-          `╰‣ 💬 This Chat: ${globalPrefix}\n` +
-          `🤖 I'm 🎀MINI BOT🫴\n📂 try "${globalPrefix}help" to see all commands.`,
+        body: box([
+          `✅ ${userName}, le préfixe du chat a été réinitialisé !`,
+          `╭‣ 🌐 Global : ${globalPrefix}`,
+          `╰‣ 💬 Ce chat : ${globalPrefix}`,
+          "🤖 Je suis 🎀MINI BOT🎀🫴",
+          `📂 Essaie "${globalPrefix}help" pour voir toutes les commandes.`
+        ]),
         mentions: [{ id: event.senderID, tag: userName }]
       });
     }
@@ -65,15 +93,18 @@ module.exports = {
         }
         const refreshedPrefix = await threadsData.get(threadID, "data.prefix") || globalPrefix;
         return message.reply({
-          body: `🔄 Hey ${userName}, prefix cache has been refreshed!\n` +
-            `╭‣ 🌐 Global: ${globalPrefix}\n` +
-            `╰‣ 💬 This Chat: ${refreshedPrefix}\n` +
-            `🤖 I'm 🎀MINI BOT🎀🫴\n📂 try "${refreshedPrefix}help" to see all commands.`,
+          body: box([
+            `🔄 ${userName}, le cache du préfixe a été actualisé !`,
+            `╭‣ 🌐 Global : ${globalPrefix}`,
+            `╰‣ 💬 Ce chat : ${refreshedPrefix}`,
+            "🤖 Je suis 🎀MINI BOT🎀🫴",
+            `📂 Essaie "${refreshedPrefix}help" pour voir toutes les commandes.`
+          ]),
           mentions: [{ id: event.senderID, tag: userName }]
         });
       } catch (error) {
         return message.reply({
-          body: `❌ Hey ${userName}, I couldn't refresh the prefix!`,
+          body: box([`❌ ${userName}, impossible d actualiser le préfixe !`]),
           mentions: [{ id: event.senderID, tag: userName }]
         });
       }
@@ -84,15 +115,25 @@ module.exports = {
 
     if (setGlobal && role < 2) {
       return message.reply({
-        body: `⛔ Hey ${userName}, Admin privileges required for global change!`,
+        body: box([`⛔ ${userName}, les droits admin sont requis pour un changement global !`]),
         mentions: [{ id: event.senderID, tag: userName }]
       });
     }
 
     const currentPrefix = await threadsData.get(event.threadID, "data.prefix") || globalPrefix;
-    const confirmMessage = setGlobal
-      ? `⚙️ Hey ${userName}, confirm global prefix change?\n╭‣ Current: ${globalPrefix}\n╰‣ New: ${newPrefix}\n🤖 React to confirm!`
-      : `⚙️ Hey ${userName}, confirm chat prefix change?\n╭‣ Current: ${currentPrefix}\n╰‣ New: ${newPrefix}\n🤖 React to confirm!`;
+    const confirmMessage = box(setGlobal
+      ? [
+        `⚙️ ${userName}, confirmer le changement du préfixe global ?`,
+        `╭‣ Actuel : ${globalPrefix}`,
+        `╰‣ Nouveau : ${newPrefix}`,
+        "🤖 Réagis pour confirmer !"
+      ]
+      : [
+        `⚙️ ${userName}, confirmer le changement du préfixe du chat ?`,
+        `╭‣ Actuel : ${currentPrefix}`,
+        `╰‣ Nouveau : ${newPrefix}`,
+        "🤖 Réagis pour confirmer !"
+      ]);
 
     return message.reply(confirmMessage, (err, info) => {
       if (err) return;
@@ -108,7 +149,7 @@ module.exports = {
   onReaction: async function ({ message, event, Reaction, threadsData, usersData }) {
     const { author, newPrefix, setGlobal } = Reaction;
     if (event.userID !== author) return;
-    const userName = await usersData.getName(event.userID) || "there";
+    const userName = await usersData.getName(event.userID) || "toi";
 
     if (setGlobal) {
       try {
@@ -116,22 +157,22 @@ module.exports = {
         const configPath = global.client.dirConfig || path.join(process.cwd(), "config.json");
         fs.writeFileSync(configPath, JSON.stringify(global.GoatBot.config, null, 2));
         return message.reply({
-          body: `✅ Hey ${userName}, global prefix updated to: ${newPrefix}`,
+          body: box([`✅ ${userName}, le préfixe global est maintenant : ${newPrefix}`]),
           mentions: [{ id: event.userID, tag: userName }]
         });
       } catch (error) {
-        return message.reply(`❌ Failed to save global prefix config.`);
+        return message.reply(box(["❌ Échec de la sauvegarde du préfixe global."]));
       }
     }
 
     try {
       await threadsData.set(event.threadID, newPrefix, "data.prefix");
       return message.reply({
-        body: `✅ Hey ${userName}, chat prefix updated to: ${newPrefix}`,
+        body: box([`✅ ${userName}, le préfixe du chat est maintenant : ${newPrefix}`]),
         mentions: [{ id: event.userID, tag: userName }]
       });
     } catch (error) {
-      return message.reply(`❌ Database error while saving chat prefix.`);
+      return message.reply(box(["❌ Erreur de base de données lors de la sauvegarde du préfixe du chat."]));
     }
   },
 
@@ -141,15 +182,18 @@ module.exports = {
     const isTrigger = triggerText === "prefix" || triggerText === "ňč" || triggerText === "nøøbcore";
     if (!isTrigger) return;
 
-    const userName = await usersData.getName(event.senderID) || "there";
+    const userName = await usersData.getName(event.senderID) || "toi";
     const globalPrefix = global.GoatBot.config.prefix;
     const threadPrefix = await threadsData.get(event.threadID, "data.prefix") || globalPrefix;
 
     return message.reply({
-      body: `👋 Hey ${userName}, did you ask for my prefix?\n` +
-        `╭‣ 🌐 Global: ${globalPrefix}\n` +
-        `╰‣ 💬 This Chat: ${threadPrefix}\n` +
-        `🤖 I'm 🎀MINI BOT🎀🫴\n📂 try "${threadPrefix}help" to see all commands.`,
+      body: box([
+        `👋 Salut ${userName}, tu cherchais mon préfixe ?`,
+        `╭‣ 🌐 Global : ${globalPrefix}`,
+        `╰‣ 💬 Ce chat : ${threadPrefix}`,
+        "🤖 Je suis 🎀MINI BOT🎀🫴",
+        `📂 Essaie "${threadPrefix}help" pour voir toutes les commandes.`
+      ]),
       mentions: [{ id: event.senderID, tag: userName }]
     });
   }
