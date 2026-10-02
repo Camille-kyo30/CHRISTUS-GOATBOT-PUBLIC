@@ -1,40 +1,40 @@
 module.exports = {
-	// You can customize the language here or directly in the command files
+	// Tu peux personnaliser la langue ici ou directement dans les fichiers de commandes
 	autoUpdateThreadInfo: {},
 	checkwarn: {
 		text: {
-			warn: "Member %1 has been warned 3 times before and has been banned from the chat box\n- Name: %1\n- Uid: %2\n- To unban, please use the \"%3warn unban <uid>\" command (with uid is the uid of the person you want to unban)",
-			needPermission: "Bot needs administrator permission to kick banned members"
+			warn: "Le membre %1 a déjà été averti 3 fois et a été banni du groupe\n- Nom : %1\n- Uid : %2\n- Pour le débannir, utilise la commande \"%3warn unban <uid>\" (avec uid l'uid de la personne que tu veux débannir)",
+			needPermission: "Le bot a besoin des droits d'administrateur pour expulser les membres bannis"
 		}
 	},
 	leave: {
 		text: {
-			session1: "morning",
-			session2: "noon",
-			session3: "afternoon",
-			session4: "evening",
-			leaveType1: "left the group",
-			leaveType2: "was kicked from the group"
+			session1: "matin",
+			session2: "midi",
+			session3: "après-midi",
+			session4: "soir",
+			leaveType1: "a quitté le groupe",
+			leaveType2: "a été expulsé du groupe"
 		}
 	},
 	logsbot: {
 		text: {
-			title: "====== Bot logs ======",
-			added: "\n✅\nEvent: bot has been added to a new group\n- Added by: %1",
-			kicked: "\n❌\nEvent: bot has been kicked\n- Kicked by: %1",
-			footer: "\n- User ID: %1\n- Group: %2\n- Group ID: %3\n- Time: %4"
+			title: "====== Logs du bot ======",
+			added: "\n✅\nÉvénement : le bot a été ajouté à un nouveau groupe\n- Ajouté par : %1",
+			kicked: "\n❌\nÉvénement : le bot a été expulsé\n- Expulsé par : %1",
+			footer: "\n- ID utilisateur : %1\n- Groupe : %2\n- ID du groupe : %3\n- Heure : %4"
 		}
 	},
 	onEvent: {},
 	welcome: {
 		text: {
-			session1: "morning",
-			session2: "noon",
-			session3: "afternoon",
-			session4: "evening",
-			welcomeMessage: "Thank you for inviting me to the group!\nBot prefix: %1\nTo view the list of commands, please enter: %1help",
-			multiple1: "you",
-			multiple2: "you guys"
+			session1: "matin",
+			session2: "midi",
+			session3: "après-midi",
+			session4: "soir",
+			welcomeMessage: "Merci de m'avoir invité dans le groupe !\nPréfixe du bot : %1\nPour voir la liste des commandes, tape : %1help",
+			multiple1: "toi",
+			multiple2: "vous"
 		}
 	}
 };
