@@ -1,10 +1,13 @@
 const { getTime, drive } = global.utils;
 
+const GOJO_GIF = "https://i.ibb.co/2Yfw6dpw/218f0e0a9849.gif";
+
 module.exports = {
 	config: {
 		name: "leave",
-		version: "1.4",
+		version: "1.5",
 		author: "NTKhang",
+		editor: "Camille Uchiha",
 		category: "events"
 	},
 
@@ -26,6 +29,28 @@ module.exports = {
 			leaveType1: "left",
 			leaveType2: "was kicked from",
 			defaultLeaveMessage: "{userName} {type} the group"
+		},
+		fr: {
+			session1: "matin",
+			session2: "midi",
+			session3: "après-midi",
+			session4: "soir",
+			leaveType1: "quitté le groupe",
+			leaveType2: "été expulsé du groupe",
+			defaultLeaveMessage: [
+				"✦━━━━━━━━━━━━━━━━━━✦",
+				"🕶️ 𝗚𝗢𝗝𝗢 𝗦𝗔𝗧𝗢𝗥𝗨 🤍",
+				"✦━━━━━━━━━━━━━━━━━━✦",
+				"",
+				"👋 {userName} a {type}",
+				"",
+				"🌌 Même l infini ne retient personne...",
+				"« Pas de panique, je suis le plus fort. »",
+				"",
+				"✦━━━━━━━━━━━━━━━━━━✦",
+				"🤞 Expansion de Domaine : Adieu 🤞",
+				"✦━━━━━━━━━━━━━━━━━━✦"
+			].join("\n")
 		}
 	},
 
@@ -92,7 +117,16 @@ module.exports = {
 						.filter(({ status }) => status == "fulfilled")
 						.map(({ value }) => value);
 				}
+				else {
+					try {
+						form.attachment = await global.utils.getStreamFromURL(GOJO_GIF);
+					}
+					catch (err) {
+						console.log("leave: GIF Gojo indisponible", err.message);
+					}
+				}
 				message.send(form);
-			};
+
+													 };
 	}
 };
