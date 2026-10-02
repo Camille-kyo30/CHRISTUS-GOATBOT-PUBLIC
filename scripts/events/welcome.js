@@ -1,12 +1,15 @@
 const { getTime, drive } = global.utils;
+
+const GOJO_GIF = "https://i.ibb.co/356rZ2cV/8c5253c7709f.gif";
 if (!global.temp.welcomeEvent)
 	global.temp.welcomeEvent = {};
 
 module.exports = {
 	config: {
 		name: "welcome",
-		version: "1.7",
+		version: "1.8",
 		author: "NTKhang",
+		editor: "Camille Uchiha",
 		category: "events"
 	},
 
@@ -30,6 +33,43 @@ module.exports = {
 			multiple1: "you",
 			multiple2: "you guys",
 			defaultWelcomeMessage: `Hello {userName}.\nWelcome {multiple} to the chat group: {boxName}\nHave a nice {session} 😊`
+		},
+		fr: {
+			session1: "matin",
+			session2: "midi",
+			session3: "après-midi",
+			session4: "soir",
+			welcomeMessage: [
+				"✦━━━━━━━━━━━━━━━━━━✦",
+				"🕶️ 𝗚𝗢𝗝𝗢 𝗦𝗔𝗧𝗢𝗥𝗨 🤍",
+				"✦━━━━━━━━━━━━━━━━━━✦",
+				"",
+				"🌌 Merci de m avoir invité dans le groupe !",
+				"« Pas de panique, je suis le plus fort. »",
+				"",
+				"⚙️ Préfixe du bot : %1",
+				"📖 Liste des commandes : %1help",
+				"",
+				"✦━━━━━━━━━━━━━━━━━━✦"
+			].join("\n"),
+			multiple1: "toi",
+			multiple2: "vous",
+			defaultWelcomeMessage: [
+				"✦━━━━━━━━━━━━━━━━━━✦",
+				"🕶️ 𝗚𝗢𝗝𝗢 𝗦𝗔𝗧𝗢𝗥𝗨 🤍",
+				"✦━━━━━━━━━━━━━━━━━━✦",
+				"",
+				"🎉 Bienvenue {userName} dans {boxName} !",
+				"",
+				"🌌 Un nouveau sorcier rejoint le groupe...",
+				"« Avec moi dans les parages, {multiple} n avez rien à craindre : je suis le plus fort. »",
+				"",
+				"🤞 Passe un bon {session} !",
+				"",
+				"✦━━━━━━━━━━━━━━━━━━✦",
+				"✨ Expansion de Domaine : Bienvenue ✨",
+				"✦━━━━━━━━━━━━━━━━━━✦"
+			].join("\n")
 		}
 	},
 
@@ -123,6 +163,14 @@ module.exports = {
 						form.attachment = (await Promise.allSettled(attachments))
 							.filter(({ status }) => status == "fulfilled")
 							.map(({ value }) => value);
+					}
+					else {
+						try {
+							form.attachment = await global.utils.getStreamFromURL(GOJO_GIF);
+						}
+						catch (err) {
+							console.log("welcome: GIF Gojo indisponible", err.message);
+						}
 					}
 					message.send(form);
 					delete global.temp.welcomeEvent[threadID];
