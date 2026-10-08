@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const BASE_URL = 'https://quiz-api-eosin-xi.vercel.app/api';
+const BASE_URL = 'https://goatmart-bwom.vercel.app/api';
 
 module.exports = {
   config: {
