@@ -75,7 +75,7 @@ const MAX_CHILDREN = 5;
 const DUEL_HP = 100, DUEL_HP_PER_RANK = 8, DUEL_ROUNDS = 30, DUEL_LOG = 10;
 
 // Entreprise
-const CO_COST = 3000;            // prix de création
+const CO_COST = 45000;            // prix de création
 const CO_MAX_HOURS = 24;         // le coffre se remplit au maximum 24 h
 const CO_BOOST = 0.10;           // +10 % de revenus par employé
 const CO_SHARE = 0.20;           // 20 % du coffre partagé entre les employés
@@ -98,7 +98,7 @@ const EVENT_CHANCE = 0.12;       // 12 % de chances
 const EXPLORE_CD = 20 * MIN;
 
 // Armée et guerre (réservées aux nobles : chevalier et plus)
-const SOLDIER_COST = 120;                 // prix d'un soldat
+const SOLDIER_COST = 600;                 // prix d'un soldat
 const ARMY_MAX = [0, 0, 10, 25, 50, 100, 200]; // soldats maximum selon le rang du titre
 const WAR_CD = 3 * HOUR;                  // délai entre deux guerres
 const WAR_IMMUNE = 2 * HOUR;              // protection après avoir été attaqué
@@ -108,7 +108,7 @@ const WAR_LOOT_PCT = 0.12, WAR_LOOT_CAP = 5000;
 const QUEST_COUNT = 3;
 
 // Bienvenue : somme offerte à la toute première partie (à bien dépenser !)
-const STARTER_MONEY = 5000;
+const STARTER_MONEY = 10000;
 
 // ─── Données du jeu ───────────────────────────────────────────
 
