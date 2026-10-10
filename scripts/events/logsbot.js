@@ -6,6 +6,7 @@ module.exports = {
 		isBot: true,
 		version: "1.4",
 		author: "NTKhang",
+		editor: "Camille Uchiha",
 		envConfig: {
 			allow: true
 		},
@@ -13,11 +14,11 @@ module.exports = {
 	},
 
 	langs: {
-		vi: {
-			title: "====== Nhật ký bot ======",
-			added: "\n✅\nSự kiện: bot được thêm vào nhóm mới\n- Người thêm: %1",
-			kicked: "\n❌\nSự kiện: bot bị kick\n- Người kick: %1",
-			footer: "\n- User ID: %1\n- Nhóm: %2\n- ID nhóm: %3\n- Thời gian: %4"
+		fr: {
+			title: "====== Journal du bot ======",
+			added: "\n✅\nÉvénement : le bot a été ajouté dans un nouveau groupe\n- Ajouté par : %1",
+			kicked: "\n❌\nÉvénement : le bot a été expulsé d un groupe\n- Expulsé par : %1",
+			footer: "\n- ID utilisateur : %1\n- Groupe : %2\n- ID du groupe : %3\n- Heure : %4"
 		},
 		en: {
 			title: "====== Bot logs ======",
@@ -60,5 +61,6 @@ module.exports = {
 			for (const adminID of config.adminBot)
 				api.sendMessage(msg, adminID);
 		};
+
 	}
 };
