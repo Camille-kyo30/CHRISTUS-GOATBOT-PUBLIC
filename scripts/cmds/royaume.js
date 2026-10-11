@@ -99,16 +99,16 @@ const EXPLORE_CD = 20 * MIN;
 
 // Armée et guerre (réservées aux nobles : chevalier et plus)
 const SOLDIER_COST = 600;                 // prix d'un soldat
-const ARMY_MAX = [0, 0, 10, 25, 50, 100, 200]; // soldats maximum selon le rang du titre
-const WAR_CD = 3 * HOUR;                  // délai entre deux guerres
-const WAR_IMMUNE = 2 * HOUR;              // protection après avoir été attaqué
+const ARMY_MAX = [0, 0, 10000, 2500, 5000, 10000, 20000]; // soldats maximum selon le rang du titre
+const WAR_CD = 15 * MIN;                  // délai entre deux guerres
+const WAR_IMMUNE = 10 * MIN;              // protection après avoir été attaqué
 const WAR_LOOT_PCT = 0.12, WAR_LOOT_CAP = 5000;
 
 // Quêtes quotidiennes
 const QUEST_COUNT = 3;
 
 // Bienvenue : somme offerte à la toute première partie (à bien dépenser !)
-const STARTER_MONEY = 10000;
+const STARTER_MONEY = 100000;
 
 // ─── Données du jeu ───────────────────────────────────────────
 
@@ -117,25 +117,25 @@ const STARTER_MONEY = 10000;
 //  work : le labeur de la classe (cd en minutes, gain [min, max])
 const TITLES = [
   { id: "paysan", emoji: "🌾", nom: "Paysan", prix: 0, vassauxReq: 0, vassauxMax: 0,
-    work: { label: "Labourer les champs", cd: 30, gain: [40, 90],
+    work: { label: "Labourer les champs", cd: 30, gain: [4000, 9000],
       lines: ["Tu as labouré les champs sous le soleil.", "Tu as récolté du blé jusqu'au soir.", "Tu as nourri les bêtes et réparé la clôture."] } },
-  { id: "villageois", emoji: "🏘️", nom: "Villageois", prix: 1500, vassauxReq: 0, vassauxMax: 0,
+  { id: "villageois", emoji: "🏘️", nom: "Villageois", prix: 150000, vassauxReq: 0, vassauxMax: 0,
     work: { label: "Tenir un commerce", cd: 45, gain: [90, 170],
       lines: ["Ta boutique ne désemplit pas aujourd'hui.", "Tu as vendu tes marchandises au marché.", "Un voyageur t'a acheté tout ton stock !"] } },
   { id: "chevalier", emoji: "🛡️", nom: "Chevalier", prix: 8000, vassauxReq: 0, vassauxMax: 3,
-    work: { label: "Administrer son fief", cd: 60, gain: [200, 320],
+    work: { label: "Administrer son fief", cd: 60, gain: [20000, 32000],
       lines: ["Tu as rendu la justice dans ton fief.", "Tu as escorté une caravane marchande.", "Tu as chassé des bandits de tes terres."] } },
-  { id: "baron", emoji: "🏰", nom: "Baron", prix: 25000, vassauxReq: 1, vassauxMax: 6,
-    work: { label: "Gérer sa baronnie", cd: 60, gain: [400, 600],
+  { id: "baron", emoji: "🏰", nom: "Baron", prix: 2500000, vassauxReq: 1, vassauxMax: 6,
+    work: { label: "Gérer sa baronnie", cd: 60, gain: [40000, 60000],
       lines: ["Tu as tenu conseil dans ton château.", "Tes terres ont produit une belle récolte.", "Tu as signé un traité avantageux."] } },
-  { id: "comte", emoji: "🦅", nom: "Comte", prix: 80000, vassauxReq: 3, vassauxMax: 10,
-    work: { label: "Gouverner son comté", cd: 60, gain: [700, 1000],
+  { id: "comte", emoji: "🦅", nom: "Comte", prix: 8000000, vassauxReq: 3, vassauxMax: 10,
+    work: { label: "Gouverner son comté", cd: 60, gain: [70000, 100000],
       lines: ["Tu as présidé le tribunal du comté.", "Les marchands de ton comté ont payé leurs taxes.", "Tu as fait bâtir un nouveau pont."] } },
-  { id: "duc", emoji: "⚜️", nom: "Duc", prix: 200000, vassauxReq: 6, vassauxMax: 15,
-    work: { label: "Diriger son duché", cd: 60, gain: [1100, 1600],
+  { id: "duc", emoji: "⚜️", nom: "Duc", prix: 20000000, vassauxReq: 6, vassauxMax: 15,
+    work: { label: "Diriger son duché", cd: 60, gain: [110000, 160000],
       lines: ["Tu as réuni tes vassaux en grand conseil.", "Ton duché prospère sous ton règne.", "Tu as reçu des ambassadeurs étrangers."] } },
-  { id: "roi", emoji: "👑", nom: "Roi", prix: 1000000, vassauxReq: 10, vassauxMax: 25,
-    work: { label: "Régner sur le royaume", cd: 60, gain: [2000, 3000],
+  { id: "roi", emoji: "👑", nom: "Roi", prix: 100000000, vassauxReq: 10, vassauxMax: 25,
+    work: { label: "Régner sur le royaume", cd: 60, gain: [200000, 300000],
       lines: ["Tu as tenu audience dans la salle du trône.", "Le trésor royal s'est bien rempli.", "Tu as signé un décret qui a fait trembler le royaume."] } }
 ];
 const TBY = {};
@@ -143,10 +143,10 @@ TITLES.forEach((t, i) => { t.rank = i; TBY[t.id] = t; });
 
 // Boutique : l'identifiant (clé) est ce qui est stocké dans l'inventaire
 const ITEMS = {
-  shield: { emoji: "🛡️", nom: "Bouclier", prix: 400, desc: "Bloque 1 vol (rob)", alias: ["shield", "bouclier"] },
-  clover: { emoji: "🍀", nom: "Trèfle", prix: 300, desc: "Seconde chance au slots", alias: ["clover", "trefle"] },
-  ring: { emoji: "💍", nom: "Bague", prix: 1000, desc: "Requise pour demander en mariage", alias: ["ring", "bague"] },
-  crown: { emoji: "👑", nom: "Couronne", prix: 5000, desc: "Requise pour monter sur le trône", alias: ["crown", "couronne"] }
+  shield: { emoji: "🛡️", nom: "Bouclier", prix: 500, desc: "Bloque 1 vol (rob)", alias: ["shield", "bouclier"] },
+  clover: { emoji: "🍀", nom: "Trèfle", prix: 400, desc: "Seconde chance au slots", alias: ["clover", "trefle"] },
+  ring: { emoji: "💍", nom: "Bague", prix: 2000, desc: "Requise pour demander en mariage", alias: ["ring", "bague"] },
+  crown: { emoji: "👑", nom: "Couronne", prix: 6000, desc: "Requise pour monter sur le trône", alias: ["crown", "couronne"] }
 };
 
 // Machine à sous : weight = fréquence, mult = gain pour 3 symboles identiques
@@ -159,22 +159,22 @@ const SLOT_TOTAL = SYMBOLS.reduce((s, x) => s + x.weight, 0);
 
 // Niveaux d'entreprise : revenu/h, coût pour passer au niveau suivant, employés max
 const CO_LEVELS = {
-  1: { income: 25, up: 6000, staff: 2 },
-  2: { income: 55, up: 15000, staff: 4 },
-  3: { income: 100, up: 40000, staff: 6 },
-  4: { income: 160, up: 90000, staff: 8 },
+  1: { income: 25, up: 60000, staff: 2 },
+  2: { income: 55, up: 150000, staff: 4 },
+  3: { income: 100, up: 400000, staff: 6 },
+  4: { income: 160, up: 900000, staff: 8 },
   5: { income: 250, up: null, staff: 10 }
 };
 const CO_MAX_LEVEL = 5;
 
 // Ressources : trouvées en exploration, vendues au marché (le prix change chaque jour !)
 const LOOT = {
-  bois: { emoji: "🪵", nom: "Bois", prix: 30, alias: ["bois", "wood"] },
-  herbe: { emoji: "🌿", nom: "Herbes", prix: 40, alias: ["herbe", "herbes", "plante"] },
-  poisson: { emoji: "🐟", nom: "Poisson", prix: 45, alias: ["poisson", "poissons", "fish"] },
-  minerai: { emoji: "⛏️", nom: "Minerai", prix: 80, alias: ["minerai", "minerais", "fer"] },
-  gemme: { emoji: "💎", nom: "Gemme", prix: 350, alias: ["gemme", "gemmes", "diamant"] },
-  relique: { emoji: "📜", nom: "Relique", prix: 900, alias: ["relique", "reliques", "artefact"] }
+  bois: { emoji: "🪵", nom: "Bois", prix: 300, alias: ["bois", "wood"] },
+  herbe: { emoji: "🌿", nom: "Herbes", prix: 400, alias: ["herbe", "herbes", "plante"] },
+  poisson: { emoji: "🐟", nom: "Poisson", prix: 450, alias: ["poisson", "poissons", "fish"] },
+  minerai: { emoji: "⛏️", nom: "Minerai", prix: 800, alias: ["minerai", "minerais", "fer"] },
+  gemme: { emoji: "💎", nom: "Gemme", prix: 3500, alias: ["gemme", "gemmes", "diamant"] },
+  relique: { emoji: "📜", nom: "Relique", prix: 9000, alias: ["relique", "reliques", "artefact"] }
 };
 
 // Zones d'exploration : rang minimum du titre, risque d'accident, amende en cas d'échec,
