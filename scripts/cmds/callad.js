@@ -1,21 +1,42 @@
 const { getStreamsFromAttachment, log } = global.utils;
 const mediaTypes = ["photo", 'png', "animated_image", "video", "audio"];
 
+// Decor : Jujutsu Kaisen (version compacte)
+const TOP = "╭━━ ⛩️ 呪術廻戦 ⛩️ ━━╮";
+const MID = "┣━━━━━━━━━━━━━━┫";
+const BOT = "╰━━━━━━ 🌀 ━━━━━━╯";
+
+function box(title, text) {
+	const lines = String(text).replace(/^\n+|\n+$/g, "").split("\n");
+	return [
+		TOP,
+		"┃ 🟣 " + title,
+		MID,
+		...lines.map((l) => "┃ " + l),
+		MID,
+		"┃ 🎀 Éditeur : Camille Uchiha",
+		BOT
+	].join("\n");
+}
+
 module.exports = {
 	config: {
 		name: "callad",
-		version: "1.7",
+		version: "1.9",
 		author: "NTKhang",
+		editor: "Camille Uchiha",
 		countDown: 5,
 		role: 0,
 		description: {
 			vi: "gửi báo cáo, góp ý, báo lỗi,... của bạn về admin bot",
-			en: "send report, feedback, bug,... to admin bot"
+			en: "send report, feedback, bug,... to admin bot",
+			fr: "envoie un rapport, un retour, un bug,... à l'admin du bot"
 		},
 		category: "contacts admin",
 		guide: {
 			vi: "   {pn} <tin nhắn>",
-			en: "   {pn} <message>"
+			en: "   {pn} <message>",
+			fr: "   {pn} <message>"
 		}
 	},
 
@@ -31,7 +52,9 @@ module.exports = {
 			replySuccess: "Đã gửi phản hồi của bạn về admin thành công!",
 			feedback: "📝 Phản hồi từ người dùng %1:\n- User ID: %2%3\n\nNội dung:\n─────────────────\n%4\n─────────────────\nPhản hồi tin nhắn này để gửi tin nhắn về người dùng",
 			replyUserSuccess: "Đã gửi phản hồi của bạn về người dùng thành công!",
-			noAdmin: "Hiện tại bot chưa có admin nào"
+			noAdmin: "Hiện tại bot chưa có admin nào",
+			replyPvSuccess: "Đã gửi phản hồi riêng tư cho người dùng thành công!",
+			pvFailed: "Không thể gửi tin nhắn riêng cho người dùng (họ chưa mở cuộc trò chuyện với bot)"
 		},
 		en: {
 			missingMessage: "Please enter the message you want to send to admin",
@@ -44,25 +67,41 @@ module.exports = {
 			replySuccess: "Sent your reply to admin successfully!",
 			feedback: "📝 Feedback from user %1:\n- User ID: %2%3\n\nContent:\n─────────────────\n%4\n─────────────────\nReply this message to send message to user",
 			replyUserSuccess: "Sent your reply to user successfully!",
-			noAdmin: "Bot has no admin at the moment"
+			noAdmin: "Bot has no admin at the moment",
+			replyPvSuccess: "Sent your private reply to user successfully!",
+			pvFailed: "Cannot send a private message to this user (they have not opened a chat with the bot)"
+		},
+		fr: {
+			missingMessage: "Entre le message que tu veux envoyer à l'admin",
+			sendByGroup: "\n- Envoyé depuis le groupe : %1\n- Thread ID : %2",
+			sendByUser: "\n- Envoyé depuis un message privé (PV)",
+			content: "\n\nContenu :\n%1\n\nRéponds à ce message pour écrire à l'utilisateur\n(commence par pv pour répondre en privé)",
+			success: "Message envoyé à %1 admin avec succès !\n%2",
+			failed: "Une erreur est survenue lors de l'envoi de ton message à %1 admin\n%2\nConsulte la console pour plus de détails",
+			reply: "Réponse de l'admin %1 :\n%2\n\nRéponds à ce message pour continuer à écrire à l'admin",
+			replySuccess: "Ta réponse a été envoyée à l'admin avec succès !",
+			feedback: "Retour de l'utilisateur %1 :\n- User ID : %2%3\n\nContenu :\n%4\n\nRéponds à ce message pour écrire à l'utilisateur\n(commence par pv pour répondre en privé)",
+			replyUserSuccess: "Ta réponse a été envoyée à l'utilisateur avec succès !",
+			noAdmin: "Le bot n'a aucun admin pour le moment",
+			replyPvSuccess: "Ta réponse a été envoyée à l'utilisateur en privé (PV) avec succès !",
+			pvFailed: "Impossible d'envoyer en privé : l'utilisateur n'a pas ouvert de discussion avec le bot"
 		}
 	},
 
 	onStart: async function ({ args, message, event, usersData, threadsData, api, commandName, getLang }) {
 		const { config } = global.GoatBot;
 		if (!args[0])
-			return message.reply(getLang("missingMessage"));
+			return message.reply(box("📨 APPEL ADMIN", getLang("missingMessage")));
 		const { senderID, threadID, isGroup } = event;
 		if (config.adminBot.length == 0)
-			return message.reply(getLang("noAdmin"));
+			return message.reply(box("📨 APPEL ADMIN", getLang("noAdmin")));
 		const senderName = await usersData.getName(senderID);
-		const msg = "==📨️ CALL ADMIN 📨️=="
-			+ `\n- User Name: ${senderName}`
-			+ `\n- User ID: ${senderID}`
+		const msg = `- Nom : ${senderName}`
+			+ `\n- ID : ${senderID}`
 			+ (isGroup ? getLang("sendByGroup", (await threadsData.get(threadID)).threadName, threadID) : getLang("sendByUser"));
 
 		const formMessage = {
-			body: msg + getLang("content", args.join(" ")),
+			body: box("📨 APPEL ADMIN", msg + getLang("content", args.join(" "))),
 			mentions: [{
 				id: senderID,
 				tag: senderName
@@ -89,6 +128,7 @@ module.exports = {
 					messageID: messageSend.messageID,
 					threadID,
 					messageIDSender: event.messageID,
+					userID: senderID,
 					type: "userCallAdmin"
 				});
 			}
@@ -112,7 +152,7 @@ module.exports = {
 			log.err("CALL ADMIN", failedIDs);
 		}
 		return message.reply({
-			body: msg2,
+			body: box("📨 ENVOI", msg2),
 			mentions: adminNames.map(item => ({
 				id: item.id,
 				tag: item.name
@@ -127,8 +167,11 @@ module.exports = {
 
 		switch (type) {
 			case "userCallAdmin": {
+				// Si l'admin commence sa reponse par "pv", elle part en message prive
+				const isPV = Boolean(Reply.userID) && /^(pv|-pv|mp)$/i.test(args[0] || "");
+				const replyArgs = isPV ? args.slice(1) : args;
 				const formMessage = {
-					body: getLang("reply", senderName, args.join(" ")),
+					body: box("📍 RÉPONSE DE L'ADMIN", getLang("reply", senderName, replyArgs.join(" "))),
 					mentions: [{
 						id: event.senderID,
 						tag: senderName
@@ -138,10 +181,13 @@ module.exports = {
 					)
 				};
 
-				api.sendMessage(formMessage, threadID, (err, info) => {
-					if (err)
+				api.sendMessage(formMessage, isPV ? Reply.userID : threadID, (err, info) => {
+					if (err) {
+						if (isPV)
+							return message.reply(box("❌ ERREUR", getLang("pvFailed")));
 						return message.err(err);
-					message.reply(getLang("replyUserSuccess"));
+					}
+					message.reply(box("✅ ENVOYÉ", getLang(isPV ? "replyPvSuccess" : "replyUserSuccess")));
 					global.GoatBot.onReply.set(info.messageID, {
 						commandName,
 						messageID: info.messageID,
@@ -149,7 +195,7 @@ module.exports = {
 						threadID: event.threadID,
 						type: "adminReply"
 					});
-				}, messageIDSender);
+				}, isPV ? undefined : messageIDSender);
 				break;
 			}
 			case "adminReply": {
@@ -159,7 +205,7 @@ module.exports = {
 					sendByGroup = getLang("sendByGroup", threadName, event.threadID);
 				}
 				const formMessage = {
-					body: getLang("feedback", senderName, event.senderID, sendByGroup, args.join(" ")),
+					body: box("📝 RETOUR UTILISATEUR", getLang("feedback", senderName, event.senderID, sendByGroup, args.join(" "))),
 					mentions: [{
 						id: event.senderID,
 						tag: senderName
@@ -172,12 +218,13 @@ module.exports = {
 				api.sendMessage(formMessage, threadID, (err, info) => {
 					if (err)
 						return message.err(err);
-					message.reply(getLang("replySuccess"));
+					message.reply(box("✅ ENVOYÉ", getLang("replySuccess")));
 					global.GoatBot.onReply.set(info.messageID, {
 						commandName,
 						messageID: info.messageID,
 						messageIDSender: event.messageID,
 						threadID: event.threadID,
+						userID: event.senderID,
 						type: "userCallAdmin"
 					});
 				}, messageIDSender);
@@ -189,3 +236,4 @@ module.exports = {
 		}
 	}
 };
+				 
