@@ -8,16 +8,21 @@ try {
   fonts = { bold: (t) => t, sansSerif: (t) => t, monospace: (t) => t, fancy: (t) => t };
 }
 
-const FRAME = "✦━━━━━━━━━━━━━━━━━━✦";
-const QUOTE = "« Pas de panique, je suis le plus fort. »";
+// Decor : Jujutsu Kaisen
+const TOP = "╭━━━━━━━━━ ⛩️ ━━━━━━━━━╮";
+const MID = "┣━━━━━━━━━━━━━━━━━━━━━┫";
+const BOT = "╰━━━━━━━━━ 🌀 ━━━━━━━━━╯";
+const QUOTE = "« L énergie maudite ne ment jamais. »";
 
 function header(title) {
   return [
-    FRAME,
-    "🕶️ " + fonts.bold("GOJO SATORU") + " 🤍",
-    FRAME,
-    fonts.bold(title),
-    "🌌 " + QUOTE,
+    "✧･ﾟ: *✧･ﾟ:* 呪術廻戦 *:･ﾟ✧*:･ﾟ✧",
+    TOP,
+    "┃  🟣 " + fonts.bold("JUJUTSU KAISEN ━ MENU") + " 🔵",
+    MID,
+    "┃  " + fonts.bold(title),
+    "┃  🌀 " + QUOTE,
+    BOT,
     ""
   ].join("\n") + "\n";
 }
@@ -25,10 +30,11 @@ function header(title) {
 function footer() {
   return [
     "",
-    FRAME,
-    "✨ Expansion de Domaine : Menu ✨",
-    fonts.bold("➜ Éditeur : Camille Uchiha") + " 🎀",
-    FRAME
+    TOP,
+    "┃  ✨ " + fonts.bold("Expansion de Domaine : Menu") + " ✨",
+    "┃  🎀 " + fonts.bold("Éditeur : Camille Uchiha"),
+    BOT,
+    "✧･ﾟ: *✧･ﾟ:* 呪 *:･ﾟ✧*:･ﾟ✧"
   ].join("\n");
 }
 
@@ -41,7 +47,7 @@ module.exports = {
   config: {
     name: "help",
     aliases: [],
-    version: "3.2.0",
+    version: "5.0.0",
     author: "Christus",
     editor: "Camille Uchiha",
     countDown: 5,
@@ -83,27 +89,27 @@ module.exports = {
 
       const sortedCats = Object.keys(categorized).sort();
 
-      let msg = header("🔍 Commandes disponibles 🧰 (" + allCommands.length + ")");
+      let msg = header("🔍 Techniques disponibles (" + allCommands.length + ")");
 
       for (const cat of sortedCats) {
-        msg += `${fonts.bold(toTitleCase(cat))} (${categorized[cat].length})\n`;
+        msg += `╭─── 【 ${fonts.bold(toTitleCase(cat))} 】 ✦ ${categorized[cat].length}\n`;
 
         const cmds = categorized[cat].sort();
 
         for (let i = 0; i < cmds.length; i += 3) {
           const line = cmds
             .slice(i, i + 3)
-            .map(c => `📄 ${fonts.sansSerif(c)}`)
-            .join("   ");
-          msg += line + "\n";
+            .map(c => `◈ ${fonts.sansSerif(c)}`)
+            .join("  ");
+          msg += `│ ${line}\n`;
         }
 
-        msg += "\n";
+        msg += "╰──────────────────\n\n";
       }
 
-      msg += `${fonts.bold("➜ Détails d une commande :")} ${prefix}help <commande>\n`;
-      msg += `${fonts.bold("➜ Commandes de base :")} ${prefix}help basics\n`;
-      msg += `${fonts.bold("➜ Recherche :")} ${prefix}help search <mot>`;
+      msg += `${fonts.bold("🔮 Détails d une technique :")} ${prefix}help <commande>\n`;
+      msg += `${fonts.bold("🔮 Techniques de base :")} ${prefix}help basics\n`;
+      msg += `${fonts.bold("🔮 Recherche :")} ${prefix}help search <mot>`;
       msg += footer();
 
       return message.reply(msg);
@@ -129,16 +135,18 @@ module.exports = {
         return message.reply(fonts.bold("❌ Aucune commande de base disponible pour ton rôle."));
       }
 
-      let msg = header("✅ Commandes de base");
+      let msg = header("✅ Techniques de base");
+      msg += "╭─── 【 Essentiel 】\n";
 
       for (const cmd of validCommands) {
         const cfg = cmd.config;
         const desc = cfg.description?.fr || "Aucune description";
-        msg += `📁 ${prefix}${cfg.name} ${fonts.bold("➜")} ${desc}\n`;
+        msg += `│ ◈ ${prefix}${cfg.name} ${fonts.bold("➜")} ${desc}\n`;
       }
 
-      msg += `\n${fonts.bold("➜ Explore encore plus de commandes !")}\n`;
-      msg += `${fonts.bold("➜ Voir tout :")} ${prefix}help`;
+      msg += "╰──────────────────\n\n";
+      msg += `${fonts.bold("🔮 Explore encore plus de techniques !")}\n`;
+      msg += `${fonts.bold("🔮 Voir tout :")} ${prefix}help`;
       msg += footer();
 
       return message.reply(msg);
@@ -170,15 +178,17 @@ module.exports = {
 
       const topResults = results.slice(0, 5);
       let msg = header(`🔎 Résultats de recherche (${topResults.length})`);
+      msg += "╭─── 【 Trouvé 】\n";
 
       for (const cmd of topResults) {
         const cfg = cmd.config;
-        const aliasesList = cfg.aliases && cfg.aliases.length > 0 ? `\nAlias : ${cfg.aliases.join(", ")}` : "";
-        msg += `📁 ${prefix}${fonts.bold(cfg.name)}${aliasesList}\n`;
-        msg += `${fonts.bold("➜")} ${cfg.description?.fr || "Aucune description"}\n\n`;
+        const aliasesList = cfg.aliases && cfg.aliases.length > 0 ? `  (alias : ${cfg.aliases.join(", ")})` : "";
+        msg += `│ ◈ ${prefix}${fonts.bold(cfg.name)}${aliasesList}\n`;
+        msg += `│    ${fonts.bold("➜")} ${cfg.description?.fr || "Aucune description"}\n`;
       }
 
-      msg += footer().replace(/^\n/, "");
+      msg += "╰──────────────────\n";
+      msg += footer();
 
       return message.reply(msg);
     }
@@ -201,22 +211,22 @@ module.exports = {
 
     const roleText = cfg.role == 0 ? "Tous les utilisateurs" : cfg.role == 1 ? "Admins du groupe" : cfg.role == 2 ? "Admin du bot" : "Inconnu";
 
-    const detail = `${FRAME}
-🕶️ ${fonts.bold("GOJO SATORU")} 🤍
-${FRAME}
-${fonts.bold(`╭─── 📄 ${toTitleCase(cfg.name)} ───`)}
-│ ➤ Nom : ${fonts.sansSerif(cfg.name)}
-│ ➤ Auteur : ${cfg.author || "Inconnu"}
-│ ➤ Éditeur : ${cfg.editor || "Camille Uchiha"}
-│ ➤ Description : ${cfg.description?.fr || "Aucune"}
-│ ➤ Utilisation : ${fonts.monospace(usage)}
-│ ➤ Catégorie : ${cfg.category || "other"}
-│ ➤ Délai : ${cfg.countDown || 1}s
-│ ➤ Rôle : ${roleText}
-│ ➤ Alias : ${cfg.aliases?.length ? cfg.aliases.join(", ") : "Aucun"}
-${fonts.bold("╰────────────────")}
-🌌 ${QUOTE}
-${FRAME}`;
+    const detail = `✧･ﾟ: *✧･ﾟ:* 呪術廻戦 *:･ﾟ✧*:･ﾟ✧
+${TOP}
+┃  🟣 ${fonts.bold("TECHNIQUE ━ " + toTitleCase(cfg.name))} 🔵
+${MID}
+┃ ◈ Nom : ${fonts.sansSerif(cfg.name)}
+┃ ◈ Auteur : ${cfg.author || "Inconnu"}
+┃ ◈ Éditeur : ${cfg.editor || "Camille Uchiha"}
+┃ ◈ Description : ${cfg.description?.fr || "Aucune"}
+┃ ◈ Utilisation : ${fonts.monospace(usage)}
+┃ ◈ Catégorie : ${cfg.category || "other"}
+┃ ◈ Délai : ${cfg.countDown || 1}s
+┃ ◈ Rôle : ${roleText}
+┃ ◈ Alias : ${cfg.aliases?.length ? cfg.aliases.join(", ") : "Aucun"}
+${MID}
+┃  🌀 ${QUOTE}
+${BOT}`;
 
     return message.reply(detail);
   }
