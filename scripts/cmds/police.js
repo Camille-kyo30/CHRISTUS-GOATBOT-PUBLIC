@@ -35,8 +35,8 @@ const MIN = 60 * 1000, HOUR = 60 * MIN, DAY = 24 * HOUR;
 
 // ─── ⚙️ RÉGLAGES (modifie ces valeurs pour équilibrer le jeu) ───
 // Police
-const JOIN_FEE = $(500);              // frais de formation
-const PATROL_CD = 20 * MIN;           // délai entre deux patrouilles
+const JOIN_FEE = $(1500);              // frais de formation
+const PATROL_CD = 10* MIN;           // délai entre deux patrouilles
 const CASE_CD = 5 * MIN;              // délai entre deux interventions
 const INVESTIGATE_CD = 15 * MIN;      // délai entre deux enquêtes
 const CASES_COUNT = 3;                // appels disponibles en même temps
@@ -44,9 +44,9 @@ const CASE_TTL = 45 * MIN;            // un appel disparaît au bout de 45 min
 const MAJOR_TTL = 2 * HOUR;           // une affaire majeure dure 2 h
 const CLUES_NEEDED = 5;               // indices pour déclencher une affaire majeure
 const WOUND_TIME = 10 * MIN;          // durée d'une blessure
-const HEAL_COST = $(200);             // soigner tout de suite
-const DAILY_PAY = $r(300, 500);       // prime journalière du policier (× grade)
-const DAILY_STREAK = $(40);           // bonus par jour de série
+const HEAL_COST = $(1200);             // soigner tout de suite
+const DAILY_PAY = $r(1300, 1500);       // prime journalière du policier (× grade)
+const DAILY_STREAK = $(4000);           // bonus par jour de série
 
 // Criminel
 const CONTRACTS_COUNT = 3;            // contrats disponibles en même temps
@@ -61,7 +61,7 @@ const RAID_CHANCE = 0.20;             // descente de police si tu es très reche
 // Prison
 const BAIL_PER_MIN = $(20);           // caution : prix par minute restante
 const ESCAPE_CD = 20 * MIN, ESCAPE_BASE = 0.20, ESCAPE_FAIL_MIN = 10, ESCAPE_FINE = $(100);
-const WORK_CD = 5 * MIN, WORK_CUT = 3, WORK_PAY = $(40);   // travaux en prison
+const WORK_CD = 5 * MIN, WORK_CUT = 3, WORK_PAY = $(1400);   // travaux en prison
 const MAX_RECORD = 10;
 const QUEST_COUNT = 3;                // objectifs par jour
 
@@ -70,11 +70,11 @@ const QUEST_COUNT = 3;                // objectifs par jour
 // Les grades. need = points requis (1 patrouille = 1 point, 1 arrestation = 3 points)
 const GRADES = [
   { emoji: "🔰", nom: "Recrue", need: 0, salary: $r(60, 120) },
-  { emoji: "🚓", nom: "Agent", need: 8, salary: $r(120, 220) },
-  { emoji: "👮", nom: "Brigadier", need: 25, salary: $r(220, 380) },
-  { emoji: "🎖️", nom: "Lieutenant", need: 60, salary: $r(380, 600) },
-  { emoji: "⭐", nom: "Commissaire", need: 140, salary: $r(600, 950) },
-  { emoji: "🏛️", nom: "Préfet", need: 300, salary: $r(1000, 1500) }
+  { emoji: "🚓", nom: "Agent", need: 8, salary: $r(12000, 22000) },
+  { emoji: "👮", nom: "Brigadier", need: 25, salary: $r(22000, 38000) },
+  { emoji: "🎖️", nom: "Lieutenant", need: 60, salary: $r(38000, 60000) },
+  { emoji: "⭐", nom: "Commissaire", need: 140, salary: $r(60000, 95000) },
+  { emoji: "🏛️", nom: "Préfet", need: 300, salary: $r(100000, 150000) }
 ];
 
 // Réputation criminelle (points de réputation)
@@ -110,10 +110,10 @@ const TARGETS = [
 const CRIME_VERBS = ["Dévaliser", "Piller", "Cambrioler", "Braquer", "Arnaquer", "Dépouiller"];
 
 // Prime du policier / butin du criminel / prison selon le niveau de difficulté (index = d)
-const PRIME_BY_D = [null, $r(80, 150), $r(150, 300), $r(300, 600), $r(600, 1100), $r(1200, 2200)];
-const LOOT_BY_D = [null, $r(60, 180), $r(200, 500), $r(500, 1100), $r(1100, 2400), $r(2500, 5000)];
+const PRIME_BY_D = [null, $r(8000, 15000), $r(15000, 30000), $r(30000, 60000), $r(60000, 110000), $r(120000, 220000)];
+const LOOT_BY_D = [null, $r(6000, 18000), $r(20000, 50000), $r(50000, 110000), $r(110000, 240000), $r(250000, 500000)];
 const JAIL_BY_D = [0, 5, 10, 18, 30, 45];          // minutes de prison si tu es arrêté
-const FINE_BY_D = [0, $(80), $(150), $(300), $(600), $(1200)];
+const FINE_BY_D = [0, $(800), $(1500), $(3000), $(6000), $(12000)];
 const CRIME_BASE = [0, 0.78, 0.66, 0.55, 0.44, 0.33];   // chances de réussite d'un coup
 
 // Matériel
@@ -131,16 +131,16 @@ const ITEMS = {
 
 // Objectifs du jour
 const QUEST_COP = [
-  { id: "patrol", text: "Faire une patrouille", key: "patrol", need: 1, reward: $r(80, 140) },
-  { id: "case", text: "Intervenir sur 2 appels", key: "case", need: 2, reward: $r(120, 200) },
-  { id: "invest", text: "Mener une enquête", key: "invest", need: 1, reward: $r(80, 140) },
-  { id: "prime", text: "Toucher ta prime du jour", key: "prime", need: 1, reward: $r(60, 100) }
+  { id: "patrol", text: "Faire une patrouille", key: "patrol", need: 1, reward: $r(800, 1400) },
+  { id: "case", text: "Intervenir sur 2 appels", key: "case", need: 2, reward: $r(12000, 2000) },
+  { id: "invest", text: "Mener une enquête", key: "invest", need: 1, reward: $r(800, 1400) },
+  { id: "prime", text: "Toucher ta prime du jour", key: "prime", need: 1, reward: $r(600, 1000) }
 ];
 const QUEST_CRIM = [
-  { id: "crime", text: "Réussir un coup", key: "crimeok", need: 1, reward: $r(100, 180) },
-  { id: "crime2", text: "Tenter 2 coups", key: "crime", need: 2, reward: $r(120, 200) },
-  { id: "contrats", text: "Consulter tes contrats", key: "contracts", need: 1, reward: $r(40, 80) },
-  { id: "laylow", text: "Te planquer ou corrompre un flic", key: "laylow", need: 1, reward: $r(80, 140) }
+  { id: "crime", text: "Réussir un coup", key: "crimeok", need: 1, reward: $r(1000, 1800) },
+  { id: "crime2", text: "Tenter 2 coups", key: "crime", need: 2, reward: $r(1200, 2000) },
+  { id: "contrats", text: "Consulter tes contrats", key: "contracts", need: 1, reward: $r(4000, 8000) },
+  { id: "laylow", text: "Te planquer ou corrompre un flic", key: "laylow", need: 1, reward: $r(8000, 14000) }
 ];
 
 const TIPS = [
