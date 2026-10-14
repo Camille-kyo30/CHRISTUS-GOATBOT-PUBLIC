@@ -1,3 +1,6 @@
+const fs = require("fs-extra");
+const path = require("path");
+
 let fonts;
 try {
   fonts = require('../../func/font.js');
@@ -5,9 +8,11 @@ try {
   fonts = { bold: (t) => t, monospace: (t) => t, sansSerif: (t) => t };
 }
 
-const ADMIN_UIDS = ["61591043063567"];
+const ADMIN_UIDS = ["61593963982581"];
+const CONFIRM_WORD = "CONFIRMER";
+const CONFIRM_TIMEOUT = 30000;
+const BACKUP_DIR = path.join(__dirname, "tmp");
 
-// État bank vierge (identique à bank.js)
 function emptyBank() {
   return {
     balance: 0, savings: 0, vault: 0, loan: 0, loanDate: null,
@@ -20,7 +25,6 @@ function emptyBank() {
   };
 }
 
-// État empire vierge (identique à empire.js)
 function emptyEmpire() {
   return {
     argentSale:        0,
@@ -59,16 +63,93 @@ function emptyEmpire() {
   };
 }
 
+const fmt = (n) => (Number(n) || 0).toLocaleString();
+
+function getScope(cmd) {
+  return {
+    bank: cmd === "bank" || cmd === "all",
+    empire: cmd === "empire" || cmd === "all",
+    full: cmd === "full"
+  };
+}
+
+function scopeLabel(scope) {
+  if (scope.full) return "TOUTES LES DONNÉES (data, money, exp)";
+  if (scope.bank && scope.empire) return "BANK + EMPIRE";
+  return scope.bank ? "BANK" : "EMPIRE";
+}
+
+function snapshot(user, scope) {
+  const data = user.data || {};
+  if (scope.full) return { money: user.money || 0, exp: user.exp || 0, data };
+  const snap = { data: {} };
+  if (scope.bank) snap.data.bank = data.bank;
+  if (scope.empire) snap.data.empire = data.empire;
+  return snap;
+}
+
+function applyReset(user, scope) {
+  if (!user.data || typeof user.data !== "object") user.data = {};
+  if (scope.full) {
+    user.data = {};
+    user.money = 0;
+    user.exp = 0;
+    return;
+  }
+  if (scope.bank) user.data.bank = emptyBank();
+  if (scope.empire) user.data.empire = emptyEmpire();
+}
+
+async function writeBackup(entries, scope) {
+  await fs.ensureDir(BACKUP_DIR);
+  const file = path.join(BACKUP_DIR, `resetdata_backup_${Date.now()}.json`);
+  await fs.writeJson(file, {
+    createdAt: new Date().toISOString(),
+    scope: scopeLabel(scope),
+    count: Object.keys(entries).length,
+    users: entries
+  });
+  return file;
+}
+
+async function massReset(usersData, scope) {
+  const allUsers = await usersData.getAll();
+  const targets = allUsers.filter(u => u && (u.userID || u.id));
+
+  const entries = {};
+  for (const u of targets) {
+    entries[String(u.userID || u.id)] = { name: u.name || null, ...snapshot(u, scope) };
+  }
+
+  const backupFile = await writeBackup(entries, scope);
+
+  let done = 0;
+  const failed = [];
+  for (const u of targets) {
+    const uid = String(u.userID || u.id);
+    const copy = { ...u, data: { ...(u.data || {}) } };
+    applyReset(copy, scope);
+    try {
+      await usersData.set(uid, copy);
+      done++;
+    } catch (err) {
+      failed.push(uid);
+    }
+  }
+
+  return { total: targets.length, done, failed, backupFile };
+}
+
 module.exports = {
   config: {
     name: "resetdata",
     aliases: ["datareset", "wipedata"],
-    version: "1.0",
+    version: "2.0",
     author: "Christus",
     countDown: 5,
     role: 0,
     description: {
-      fr: "🔧 Réinitialise les données bank et/ou empire d'un utilisateur ou de tous les utilisateurs."
+      fr: "🔧 Réinitialise les données bank, empire ou toutes les données d'un utilisateur ou de tous les utilisateurs."
     },
     category: "admin",
     guide: {
@@ -78,80 +159,87 @@ module.exports = {
           `${fonts.bold("{pn} empire [@user|uid]")} : reset empire d'un utilisateur\n` +
           `${fonts.bold("{pn} empire all")} : reset empire de TOUS les utilisateurs\n` +
           `${fonts.bold("{pn} all [@user|uid]")} : reset bank + empire d'un utilisateur\n` +
-          `${fonts.bold("{pn} all all")} : reset bank + empire de TOUS les utilisateurs\n\n` +
+          `${fonts.bold("{pn} all all")} : reset bank + empire de TOUS les utilisateurs\n` +
+          `${fonts.bold("{pn} full <@user|uid>")} : efface TOUTES les données d'un utilisateur (data, money, exp)\n` +
+          `${fonts.bold("{pn} full all")} : efface TOUTES les données de TOUS les utilisateurs\n\n` +
+          `ℹ️ Les resets globaux demandent une confirmation et créent une sauvegarde JSON avant d'effacer.\n\n` +
           `Exemples :\n` +
           `• ${fonts.monospace("{pn} bank @Christus")}\n` +
           `• ${fonts.monospace("{pn} empire all")}\n` +
-          `• ${fonts.monospace("{pn} all all")}`
+          `• ${fonts.monospace("{pn} full all")}`
     }
   },
 
   onStart: async function ({ message, event, args, usersData }) {
-    if (!ADMIN_UIDS.includes(event.senderID.toString())) {
+    if (!ADMIN_UIDS.includes(String(event.senderID))) {
       return message.reply("⛔ Accès refusé : privilèges administrateur requis.");
     }
 
-    const cmd    = args[0]?.toLowerCase(); // bank | empire | all
-    const target = args[1]?.toLowerCase(); // all | uid | (vide = soi-même ou tag)
+    const cmd    = args[0]?.toLowerCase();
+    const target = args[1]?.toLowerCase();
 
-    if (!cmd || !["bank", "empire", "all"].includes(cmd)) {
+    if (!cmd || !["bank", "empire", "all", "full"].includes(cmd)) {
       return message.reply(
         `❌ Usage :\n` +
         `• resetdata bank [@user|uid|all]\n` +
         `• resetdata empire [@user|uid|all]\n` +
-        `• resetdata all [@user|uid|all]`
+        `• resetdata all [@user|uid|all]\n` +
+        `• resetdata full <@user|uid|all>`
       );
     }
 
-    const resetBank   = cmd === "bank"   || cmd === "all";
-    const resetEmpire = cmd === "empire" || cmd === "all";
+    const scope = getScope(cmd);
 
-    // ───────────────────────────────────────────────
-    // MODE: all → tous les utilisateurs
-    // ───────────────────────────────────────────────
     if (target === "all") {
-      await message.reply("⏳ Réinitialisation en cours pour tous les utilisateurs...");
-
+      let total;
       try {
-        const allUsers = await usersData.getAll();
-        let count = 0;
-
-        for (const user of allUsers) {
-          const uid = user.userID || user.id;
-          if (!uid) continue;
-
-          const fresh = {};
-          if (resetBank)   fresh["data.bank"]   = emptyBank();
-          if (resetEmpire) fresh["data.empire"]  = emptyEmpire();
-
-          // On reconstruit l'objet data proprement
-          const current = await usersData.get(uid);
-          if (!current) continue;
-          if (!current.data) current.data = {};
-          if (resetBank)   current.data.bank   = emptyBank();
-          if (resetEmpire) current.data.empire  = emptyEmpire();
-          await usersData.set(uid, current);
-          count++;
-        }
-
-        const what = resetBank && resetEmpire ? "bank + empire" : resetBank ? "bank" : "empire";
-        return message.reply(
-          `✅ Réinitialisation terminée !\n` +
-          `🔄 ${what.toUpperCase()} remis à zéro pour ${count} utilisateur(s).`
-        );
+        total = (await usersData.getAll()).length;
       } catch (err) {
-        return message.reply(`❌ Erreur lors de la réinitialisation globale :\n${err.message}`);
+        return message.reply(`❌ Impossible de lire la base de données :\n${err.message}`);
       }
+
+      const confirmMsg = [
+        "⚠️ RÉINITIALISATION GLOBALE",
+        "",
+        `🔄 Portée : ${scopeLabel(scope)}`,
+        `👥 Utilisateurs concernés : ${total}`,
+        "",
+        "Cette action est irréversible (une sauvegarde JSON sera créée juste avant).",
+        `✅ Réponds à ce message avec ${CONFIRM_WORD} dans les 30 secondes pour valider.`
+      ].join("\n");
+
+      const replyMsg = await message.reply(confirmMsg);
+
+      global.GoatBot.onReply.set(replyMsg.messageID, {
+        commandName: "resetdata",
+        author: event.senderID,
+        messageID: replyMsg.messageID,
+        scope
+      });
+
+      setTimeout(() => {
+        const data = global.GoatBot.onReply.get(replyMsg.messageID);
+        if (data && data.author === event.senderID) {
+          global.GoatBot.onReply.delete(replyMsg.messageID);
+          message.unsend(replyMsg.messageID).catch(() => {});
+          message.reply("⏰ Temps écoulé, réinitialisation annulée.");
+        }
+      }, CONFIRM_TIMEOUT);
+
+      return;
     }
 
-    // ───────────────────────────────────────────────
-    // MODE: utilisateur ciblé (tag / uid / soi-même)
-    // ───────────────────────────────────────────────
-    let targetID = Object.keys(event.mentions)[0];
+    let targetID = Object.keys(event.mentions || {})[0];
     if (!targetID) {
       const potentialUID = args.find(a => /^\d{10,}$/.test(a));
       if (potentialUID) targetID = potentialUID;
-      else targetID = event.senderID;
+    }
+
+    if (!targetID) {
+      if (scope.full) {
+        return message.reply("❌ Pour `full`, indique explicitement un utilisateur (@tag ou uid) ou `all`.");
+      }
+      targetID = event.senderID;
     }
 
     let userData;
@@ -166,17 +254,26 @@ module.exports = {
 
     const beforeBank   = userData.data.bank;
     const beforeEmpire = userData.data.empire;
+    const beforeData   = userData.data;
+    const beforeMoney  = userData.money;
+    const beforeExp    = userData.exp;
     const lines        = [];
 
-    if (resetBank) {
-      const hadBank = !!beforeBank;
-      userData.data.bank = emptyBank();
-      if (hadBank) {
+    if (scope.full) {
+      const keys = Object.keys(beforeData);
+      lines.push(`🧹 Données complètes effacées`);
+      lines.push(`   • Money : $${fmt(beforeMoney)} ➜ $0`);
+      lines.push(`   • EXP   : ${fmt(beforeExp)} ➜ 0`);
+      lines.push(`   • Clés data supprimées : ${keys.length}${keys.length ? ` (${keys.join(", ")})` : ""}`);
+    }
+
+    if (scope.bank) {
+      if (beforeBank) {
         lines.push(`🏦 Bank réinitialisée`);
-        lines.push(`   • Balance : $${(beforeBank.balance || 0).toLocaleString()} ➜ $0`);
-        lines.push(`   • Savings : $${(beforeBank.savings || 0).toLocaleString()} ➜ $0`);
-        lines.push(`   • Vault   : $${(beforeBank.vault   || 0).toLocaleString()} ➜ $0`);
-        lines.push(`   • Prêt    : $${(beforeBank.loan    || 0).toLocaleString()} ➜ $0`);
+        lines.push(`   • Balance : $${fmt(beforeBank.balance)} ➜ $0`);
+        lines.push(`   • Savings : $${fmt(beforeBank.savings)} ➜ $0`);
+        lines.push(`   • Vault   : $${fmt(beforeBank.vault)} ➜ $0`);
+        lines.push(`   • Prêt    : $${fmt(beforeBank.loan)} ➜ $0`);
         const assets = [
           Object.keys(beforeBank.stocks   || {}).length,
           Object.keys(beforeBank.crypto   || {}).length,
@@ -192,13 +289,11 @@ module.exports = {
       }
     }
 
-    if (resetEmpire) {
-      const hadEmpire = !!beforeEmpire;
-      userData.data.empire = emptyEmpire();
-      if (hadEmpire) {
+    if (scope.empire) {
+      if (beforeEmpire) {
         lines.push(`🏴‍☠️ Empire réinitialisé`);
-        lines.push(`   • Argent sale  : $${(beforeEmpire.argentSale  || 0).toLocaleString()} ➜ $0`);
-        lines.push(`   • Argent propre: $${(beforeEmpire.argentPropre|| 0).toLocaleString()} ➜ $0`);
+        lines.push(`   • Argent sale  : $${fmt(beforeEmpire.argentSale)} ➜ $0`);
+        lines.push(`   • Argent propre: $${fmt(beforeEmpire.argentPropre)} ➜ $0`);
         lines.push(`   • Rang         : ${beforeEmpire.rang || "RAT"} ➜ RAT`);
         lines.push(`   • XP           : ${beforeEmpire.xp || 0} ➜ 0`);
         lines.push(`   • Territoires  : ${(beforeEmpire.territoires || []).length} ➜ 1 (BANLIEUE)`);
@@ -208,6 +303,8 @@ module.exports = {
         lines.push(`🏴‍☠️ Empire : aucune donnée existante — données vierges créées.`);
       }
     }
+
+    applyReset(userData, scope);
 
     try {
       await usersData.set(targetID, userData);
@@ -219,6 +316,36 @@ module.exports = {
     } catch (err) {
       return message.reply(`❌ Erreur lors de la sauvegarde : ${err.message}`);
     }
+  },
+
+  onReply: async function ({ message, event, Reply, usersData }) {
+    if (Reply.author !== event.senderID) return;
+    if (!ADMIN_UIDS.includes(String(event.senderID))) return;
+
+    global.GoatBot.onReply.delete(Reply.messageID);
+    message.unsend(Reply.messageID).catch(() => {});
+
+    if ((event.body || "").trim().toUpperCase() !== CONFIRM_WORD) {
+      return message.reply("❌ Réinitialisation annulée.");
+    }
+
+    await message.reply("⏳ Sauvegarde puis réinitialisation en cours...");
+
+    let result;
+    try {
+      result = await massReset(usersData, Reply.scope);
+    } catch (err) {
+      return message.reply(`❌ Opération annulée, aucune donnée n'a été modifiée :\n${err.message}`);
+    }
+
+    const lines = [
+      "✅ Réinitialisation terminée !",
+      `🔄 ${scopeLabel(Reply.scope)} remis à zéro pour ${result.done}/${result.total} utilisateur(s).`,
+      `💾 Sauvegarde : ${path.relative(process.cwd(), result.backupFile)}`
+    ];
+    if (result.failed.length) {
+      lines.push(`⚠️ Échecs : ${result.failed.length} (ex : ${result.failed.slice(0, 5).join(", ")})`);
+    }
+    return message.reply(lines.join("\n"));
   }
 };
-    
