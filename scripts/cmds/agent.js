@@ -8,7 +8,7 @@
 const axios = require("axios");
 const { Octokit } = require("@octokit/rest");
 
-const AGENT_ENDPOINT = "https://mini-api-r6rw.onrender.com/api/v1/agent";
+const AGENT_ENDPOINT = "https://mini-api-0aub.onrender.com/api/v1/agent";
 const MAX_TOOL_CALLS_PER_TURN = 6;
 const MAX_MESSAGES_STORED = 30;
 
